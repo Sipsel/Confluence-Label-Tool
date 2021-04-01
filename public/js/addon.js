@@ -1,12 +1,24 @@
+/*
+var expandedNodes;
+#if ($openNode)
+    expandedNodes = [
+        {pageId: "$openId"}
+    #foreach ($nodeId in $openedNodes)
+        ,{pageId: "$nodeId"}
+    #end
+    ];
+#end
+*/
 function search_form_submit()
 {
    let search_type = $('#search-input-type').val()
    let search_string = $('#search-input-text').val()
    if(search_type=="label")
    {
-      console.log("true")
+      console.log("true");
+	   console.log(`/rest/api/content/search?cql=label=${search_string}`);
       AP.request({
-         url: `/rest/api/content/search?cql=label=${search_string}`,
+         url: `/rest/api/content/search?cql=label="${search_string}"`,
           success: function(response) {
             response = JSON.parse(response);
             //console.log(response)
@@ -33,8 +45,9 @@ function search_form_submit()
         });
    }
    else{
+	  console.log(`/rest/api/content?${search_type}="${search_string}"&type=page`);
       AP.request({
-         url: `/rest/api/content?${search_type}=${search_string}&type=page`,
+         url: `/rest/api/content?${search_type}="${search_string}"&type=page`,
           success: function(response) {
             response = JSON.parse(response);
             //console.log(response)
@@ -152,3 +165,49 @@ function delete_form_submit()
    }
    return false;
 }
+
+/*
+jQuery(function ($) {
+    tree = $("#tree-div").tree(
+        {
+            url: contextPath + '/pages/children.action',
+            initUrl: contextPath + '/pages/children.action?spaceKey=$space.key&node=root',
+            parameters: ["pageId"],
+            append: function() {
+                recordMove(this.source.pageId, this.target.pageId, "append");
+            },
+            insertabove: function() {
+                recordMove(this.source.pageId, this.target.pageId, "above");
+            },
+            insertbelow: function() {
+                recordMove(this.source.pageId, this.target.pageId, "below");
+            },
+            onready: function () {
+                if (typeof expandedNodes != "undefined") {
+                    var doHighlight = function() {
+                        tree.findNodeBy("pageId", "$openId").highlight()
+                    };
+                    tree.expandPath.apply(tree, expandedNodes.reverse().concat(doHighlight));
+                }
+            }
+        }
+    );
+    var recordMove = function (sourceId, targetId, position) {
+        $ .ajax({
+            url: contextPath + "/pages/movepage.action",
+            data: {pageId: sourceId, point: position, targetId: targetId},
+            complete: function(xmlhttp) {
+                var resultsDiv = document.getElementById("resultsDiv");
+                resultsDiv.innerHTML = xmlhttp.responseText;
+                if (xmlhttp.getResponseHeader("success") != "true") {
+                    tree = tree.reload();
+                }
+                if ( position == "append") {
+                    tree.findNodeBy("pageId", targetId).reload();
+                }
+
+            }
+        });
+    }
+});
+*/
